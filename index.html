@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Геодезические калькуляторы</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #1e2f3a 0%, #0f1c24 100%);
+            font-family: 'Segoe UI', 'Roboto', 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .card {
+            background: rgba(10, 20, 30, 0.65);
+            backdrop-filter: blur(8px);
+            border-radius: 56px;
+            padding: 28px 24px 36px;
+            max-width: 720px;
+            width: 100%;
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            text-align: center;
+            background: linear-gradient(135deg, #f5e7b2, #d4af37);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .tab-bar {
+            display: flex;
+            gap: 12px;
+            margin: 20px 0 24px;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 6px;
+            border-radius: 60px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 10px 12px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            color: #cbddea;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(95deg, #d4af37, #b88b1a);
+            color: #0f1c24;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active-pane {
+            display: block;
+            animation: fadeSlide 0.25s ease-out;
+        }
+
+        @keyframes fadeSlide {
+            from { opacity: 0; transform: translateY(8px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+
+        .input-panel {
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: 32px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .point-group {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 28px;
+            padding: 18px;
+            margin-bottom: 20px;
+        }
+
+        .point-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #ecd670;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .coord-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 12px;
+        }
+
+        .coord-row label {
+            width: 28px;
+            font-weight: 700;
+            color: #d4b97a;
+            font-size: 1rem;
+        }
+
+        input {
+            flex: 1;
+            background: #f5f9ff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 48px;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #0f2c2c;
+            outline: none;
+            transition: 0.1s;
+        }
+
+        input:focus {
+            box-shadow: 0 0 0 2px #d4af37;
+            background: #ffffff;
+        }
+
+        .offset-block {
+            background: #16262e;
+            border-radius: 28px;
+            padding: 18px;
+            margin-top: 8px;
+        }
+
+        .offset-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-weight: 600;
+            color: #ecd670;
+            margin-bottom: 8px;
+        }
+
+        .offset-input {
+            max-width: 160px;
+            font-weight: 600;
+        }
+
+        .info-hint {
+            font-size: 0.7rem;
+            color: #9bb7d0;
+            margin-top: 6px;
+        }
+
+        button {
+            background: linear-gradient(95deg, #d4af37, #b88b1a);
+            width: 100%;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 60px;
+            font-weight: bold;
+            font-size: 1rem;
+            color: #11171f;
+            cursor: pointer;
+            transition: 0.15s;
+            margin-top: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            transform: scale(1.01);
+            background: #e6c456;
+        }
+
+        .result-block {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 36px;
+            padding: 20px;
+            border-left: 5px solid #d4af37;
+            margin-top: 20px;
+        }
+
+        .result-header {
+            font-weight: bold;
+            font-size: 1rem;
+            margin-bottom: 12px;
+            color: #ecd670;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-coords {
+            font-family: 'Courier New', monospace;
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: #ffffff;
+            padding: 14px;
+            border-radius: 32px;
+            text-align: center;
+            word-break: break-all;
+        }
+
+        .hypotenuse-value {
+            font-family: 'Courier New', monospace;
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: #07121b;
+            padding: 16px;
+            border-radius: 32px;
+            text-align: center;
+            color: #f5e7b2;
+        }
+
+        .error {
+            background: #9a2e2e70;
+            border-radius: 28px;
+            padding: 12px;
+            text-align: center;
+            color: #fcd4a8;
+            font-weight: 600;
+        }
+
+        .footer-note {
+            font-size: 0.68rem;
+            text-align: center;
+            color: #8aaec9;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>📐 Геодезические калькуляторы</h1>
+    <div class="tab-bar">
+        <button class="tab-btn active" data-tab="tab1">📏 Смещение точки</button>
+        <button class="tab-btn" data-tab="tab2">🧮 Теорема Пифагора</button>
+    </div>
+
+    <!-- Вкладка 1: Смещение точки (основная логика) -->
+    <div id="tab1" class="tab-pane active-pane">
+        <div class="input-panel">
+            <div class="point-group">
+                <div class="point-title">📍 Точка A (начало базиса)</div>
+                <div class="coord-row"><label>X:</label><input type="number" id="ax" step="any" value="35400.8600"></div>
+                <div class="coord-row"><label>Y:</label><input type="number" id="ay" step="any" value="39149.0100"></div>
+            </div>
+            <div class="point-group">
+                <div class="point-title">📍 Точка B (конец базиса / база для отступа)</div>
+                <div class="coord-row"><label>X:</label><input type="number" id="bx" step="any" value="35394.0864"></div>
+                <div class="coord-row"><label>Y:</label><input type="number" id="by" step="any" value="39158.9144"></div>
+            </div>
+            <div class="offset-block">
+                <div class="offset-label">📏 Величина смещения (м): <input type="number" id="otstup" step="any" value="2.0" class="offset-input"></div>
+                <div class="info-hint">* Откладывается от точки B в направлении от A к B</div>
+            </div>
+            <button onclick="calculateOffset()">Рассчитать точку C</button>
+        </div>
+        <div id="offsetResult" class="result-block">
+            <div class="result-header">✨ РЕЗУЛЬТАТ (точка С)</div>
+            <div class="result-coords">—</div>
+        </div>
+        <div class="footer-note">Формула: единичный вектор направления A→B × смещение + координаты B</div>
+    </div>
+
+    <!-- Вкладка 2: Теорема Пифагора -->
+    <div id="tab2" class="tab-pane">
+        <div class="input-panel">
+            <div class="point-group" style="margin-bottom: 12px;">
+                <div class="point-title">📐 Катеты прямоугольного треугольника</div>
+                <div class="coord-row"><label>a:</label><input type="number" id="cathetusA" step="any" value="3.000" placeholder="первый катет"></div>
+                <div class="coord-row"><label>b:</label><input type="number" id="cathetusB" step="any" value="4.000" placeholder="второй катет"></div>
+            </div>
+            <button onclick="calculateHypotenuse()">🧮 Вычислить гипотенузу</button>
+        </div>
+        <div id="pythagorasResult" class="result-block">
+            <div class="result-header">✨ ГИПОТЕНУЗА (c)</div>
+            <div class="hypotenuse-value">—</div>
+        </div>
+        <div class="footer-note">c = √(a² + b²)</div>
+    </div>
+</div>
+
+<script>
+    // ---- Вкладка 1: Расчёт смещения точки (полностью сохранена логика) ----
+    function calculateOffset() {
+        const ax = parseFloat(document.getElementById('ax').value);
+        const ay = parseFloat(document.getElementById('ay').value);
+        const bx = parseFloat(document.getElementById('bx').value);
+        const by = parseFloat(document.getElementById('by').value);
+        const otstup = parseFloat(document.getElementById('otstup').value);
+        const resultDiv = document.getElementById('offsetResult');
+
+        if (isNaN(ax) || isNaN(ay) || isNaN(bx) || isNaN(by) || isNaN(otstup)) {
+            resultDiv.innerHTML = `<div class="result-header">✨ РЕЗУЛЬТАТ (точка С)</div><div class="error">⚠️ Ошибка: проверьте корректность данных</div>`;
+            return;
+        }
+
+        const deltaX = bx - ax;
+        const deltaY = by - ay;
+        const distanceAB = Math.hypot(deltaX, deltaY);
+
+        if (distanceAB === 0) {
+            resultDiv.innerHTML = `<div class="result-header">✨ РЕЗУЛЬТАТ (точка С)</div><div class="error">⚠️ Ошибка: точки A и B совпадают</div>`;
+            return;
+        }
+
+        const unitX = deltaX / distanceAB;
+        const unitY = deltaY / distanceAB;
+        const cx = bx + otstup * unitX;
+        const cy = by + otstup * unitY;
+
+        resultDiv.innerHTML = `
+            <div class="result-header">✨ РЕЗУЛЬТАТ (точка С)</div>
+            <div class="result-coords">X = ${cx.toFixed(4)} &nbsp;&nbsp; Y = ${cy.toFixed(4)}</div>
+            <div style="font-size: 0.75rem; margin-top: 10px; text-align: center;">📌 смещение от B: ${otstup.toFixed(3)} м</div>
+        `;
+    }
+
+    // ---- Вкладка 2: Теорема Пифагора ----
+    function calculateHypotenuse() {
+        let a = parseFloat(document.getElementById('cathetusA').value);
+        let b = parseFloat(document.getElementById('cathetusB').value);
+        const resultDiv = document.getElementById('pythagorasResult');
+
+        if (isNaN(a) || isNaN(b)) {
+            resultDiv.innerHTML = `<div class="result-header">✨ ГИПОТЕНУЗА (c)</div><div class="error">❌ Ошибка: введите числовые значения</div>`;
+            return;
+        }
+        if (a <= 0 || b <= 0) {
+            resultDiv.innerHTML = `<div class="result-header">✨ ГИПОТЕНУЗА (c)</div><div class="error">⚠️ Длины катетов должны быть > 0</div>`;
+            return;
+        }
+
+        const hypotenuse = Math.hypot(a, b);
+        resultDiv.innerHTML = `
+            <div class="result-header">✨ ГИПОТЕНУЗА (c)</div>
+            <div class="hypotenuse-value">c = ${hypotenuse.toFixed(6)} ед.</div>
+            <div style="font-size:0.7rem; margin-top:8px; text-align:center;">a = ${a.toFixed(4)} b = ${b.toFixed(4)}</div>
+        `;
+    }
+
+    // Переключение вкладок
+    const tabs = document.querySelectorAll('.tab-btn');
+    const panes = document.querySelectorAll('.tab-pane');
+
+    tabs.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetId = btn.getAttribute('data-tab');
+            tabs.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            panes.forEach(pane => pane.classList.remove('active-pane'));
+            document.getElementById(targetId).classList.add('active-pane');
+        });
+    });
+
+    // Первоначальный расчёт для обеих вкладок
+    window.addEventListener('DOMContentLoaded', () => {
+        calculateOffset();
+        calculateHypotenuse();
+    });
+</script>
+</body>
+</html>
